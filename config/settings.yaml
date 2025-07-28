@@ -1,0 +1,16 @@
+font_color: '#ffffff'
+font_path: ./fonts/default.ttf
+font_size: 30
+last_image_folder: ./image
+last_output_folder: daiku
+last_text_file: ./test.txt
+max_chars: 11
+narration_bg_alpha: 50
+narration_bg_color: '#003232'
+narration_orientation: horizontal
+narration_text_align: center
+serif_bg_alpha: 30
+serif_bg_color: '#0000a0'
+serif_border_color: '#00ffff'
+serif_font_color: '#ffffff'
+serif_font_path: ./fonts/default.ttf
