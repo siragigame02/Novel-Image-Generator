@@ -1,10 +1,10 @@
 font_color: '#ffffff'
 font_path: ./fonts/default.ttf
-font_size: 30
+font_size: 38
 last_image_folder: ./image
 last_output_folder: daiku
 last_text_file: ./test.txt
-max_chars: 11
+max_chars: 20
 narration_bg_alpha: 50
 narration_bg_color: '#003232'
 narration_orientation: horizontal

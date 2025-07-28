@@ -467,6 +467,14 @@ class NovelImageGeneratorGUI:
             button_frame, text="📤 設定読込", command=self._load_settings, width=15
         ).grid(row=0, column=2, padx=5)
 
+        # 出力フォルダを開くボタン
+        ttk.Button(
+            button_frame,
+            text="📁 出力フォルダ",
+            command=self._open_current_output_folder,
+            width=15,
+        ).grid(row=0, column=3, padx=5)
+
         # プログレスバー
         self.widgets["progress"] = ttk.Progressbar(parent, mode="indeterminate")
         self.widgets["progress"].grid(
@@ -760,6 +768,9 @@ class NovelImageGeneratorGUI:
                 self._log(f"   出力先: {output_folder}")
                 self._log(f"   生成枚数: {len(blocks)}枚")
 
+                # エクスプローラーで出力フォルダを開く
+                self._open_output_folder(str(output_folder))
+
                 # 完了ダイアログ（メインスレッドで実行）
                 self.root.after(
                     0,
@@ -767,7 +778,8 @@ class NovelImageGeneratorGUI:
                         "生成完了",
                         f"画像生成が正常に完了しました。\n\n"
                         f"出力先: {output_folder}\n"
-                        f"生成枚数: {len(blocks)}枚",
+                        f"生成枚数: {len(blocks)}枚\n\n"
+                        f"出力フォルダをエクスプローラーで開きました。",
                     ),
                 )
             else:
@@ -860,6 +872,67 @@ class NovelImageGeneratorGUI:
             # フォールバック: コンソールに出力
             print(f"LOG: {message}")
 
+    def _open_current_output_folder(self):
+        """現在設定されている出力フォルダを開く"""
+        try:
+            current_settings = self._get_current_settings()
+            output_folder_name = current_settings.get(
+                "last_output_folder", ""
+            ).strip()
+
+            if not output_folder_name:
+                messagebox.showwarning("警告", "出力フォルダ名が設定されていません")
+                return
+
+            # プロジェクトルートのoutputフォルダを基準にする
+            output_folder = (
+                self.project_root
+                / "output"
+                / sanitize_filename(output_folder_name)
+            )
+
+            if not output_folder.exists():
+                # フォルダが存在しない場合は作成
+                output_folder.mkdir(parents=True, exist_ok=True)
+                self._log(f"出力フォルダを作成しました: {output_folder}")
+
+            self._open_output_folder(str(output_folder))
+            self._log(f"出力フォルダを開きました: {output_folder}")
+
+        except Exception as e:
+            self._log(f"出力フォルダを開けませんでした: {e}")
+            messagebox.showerror("エラー", f"出力フォルダを開けませんでした:\n{e}")
+
+    def _open_output_folder(self, folder_path: str):
+        """
+        出力フォルダをエクスプローラーで開く
+
+        Args:
+            folder_path: 開くフォルダのパス
+        """
+        try:
+            import subprocess
+            import platform
+
+            folder_path = str(Path(folder_path).resolve())
+
+            system = platform.system()
+            if system == "Windows":
+                # Windows: エクスプローラーで開く
+                subprocess.run(["explorer", folder_path], check=False)
+            elif system == "Darwin":  # macOS
+                # macOS: Finderで開く
+                subprocess.run(["open", folder_path], check=False)
+            elif system == "Linux":
+                # Linux: ファイルマネージャーで開く
+                subprocess.run(["xdg-open", folder_path], check=False)
+            else:
+                self._log(f"   エクスプローラーの自動起動は対応していません: {system}")
+
+        except Exception as e:
+            self._log(f"   エクスプローラー起動エラー: {e}")
+            # エラーが発生してもプログラムは継続
+
     def _append_log_direct(self, log_message: str):
         """ログテキストに直接追加（メインスレッド用）"""
         try:
@@ -943,7 +1016,7 @@ def create_gui_application(
     root = tk.Tk()
     root.title("小説画像化ツール")
     root.geometry("900x920")  # 縦を920pxに拡大
-    root.minsize(800, 920)  # 最小サイズも調整
+    root.minsize(800, 700)  # 最小サイズも調整
 
     # アイコン設定（オプション）
     try:

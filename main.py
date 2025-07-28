@@ -12,9 +12,14 @@ from pathlib import Path
 import tkinter as tk
 from tkinter import messagebox
 
+# プロジェクトルートディレクトリを設定（バイナリ化対応）
+if getattr(sys, "frozen", False):
+    # PyInstallerでバイナリ化された場合
+    PROJECT_ROOT = Path(sys.executable).parent
+else:
+    # 通常のPythonスクリプト実行の場合
+    PROJECT_ROOT = Path(__file__).parent
 
-# プロジェクトルートディレクトリを設定
-PROJECT_ROOT = Path(__file__).parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 # 各モジュールのインポート
@@ -130,8 +135,8 @@ class NovelImageGeneratorApp:
             root.title("小説画像化ツール")
 
             # ウィンドウサイズとアイコンの設定
-            root.geometry("900x600")
-            root.minsize(600, 860)
+            root.geometry("800x600")
+            root.minsize(600, 850)
 
             # GUIアプリケーションを作成
             app = NovelImageGeneratorGUI(
